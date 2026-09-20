@@ -2,6 +2,8 @@
 
 Client-side helper that splits a merchant UPI payment into tranches under ₹2,000. It never holds or moves money; it only builds standard `upi://pay` intents and QR codes for the user's own UPI app.
 
+Use it : https://hustleupi.onrender.com
+
 ## Local development
 
 ```bash
