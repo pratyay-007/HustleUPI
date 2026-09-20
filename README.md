@@ -2,7 +2,7 @@
 
 Client-side helper that splits a merchant UPI payment into tranches under ₹2,000. It never holds or moves money; it only builds standard `upi://pay` intents and QR codes for the user's own UPI app.
 
-Use it : https://hustleupi.onrender.com
+Use it : https://hustleupi.netlify.app
 
 ## Local development
 
@@ -20,12 +20,14 @@ npm run build
 ```
 The output will be in the `dist` directory, ready to be served by any static web host.
 
-## Deploy (Render Static Site)
+## Deploy (Netlify)
 
-Use the included `render.yaml`, or set these in the Render dashboard:
+The included `netlify.toml` configures the site automatically:
 
-1. Build command: `npm install && npm run build`
+1. Build command: `npm run build`
 2. Publish directory: `dist`
 3. SPA rewrite: `/*` → `/index.html` (harmless; About is `#about` and does not need path routes)
 
-Render serves the static site over HTTPS, which is required for `getUserMedia` camera access.
+Netlify serves the static site over HTTPS, which is required for `getUserMedia` camera access.
+
+`render.yaml` is also kept for deploying to Render Static Sites as an alternative host.
