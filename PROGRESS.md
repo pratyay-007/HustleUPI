@@ -58,6 +58,24 @@ Recently applied updates:
 - Fixed footer typo to correctly display "Hustle UPI © 2026".
 - Implemented an initial skeleton/loading screen to prevent any flash of unstyled content (FOUC) on the first visit.
 
+## Deploy config fix (2026-09-20)
+
+The live site (`hustleupi.netlify.app`, hosted on Netlify) was unreachable
+(`ERR_CONNECTION_TIMED_OUT`). The repo had no `netlify.toml`, so Netlify had
+to guess the build command and publish directory for this Vite project —
+the project had only been prepared for Render (`render.yaml`), not Netlify.
+Added `netlify.toml` with the explicit build command (`npm run build`),
+publish dir (`dist`), SPA rewrite, and the same Cache-Control headers as
+`render.yaml`. Also swapped stale `hustleupi.onrender.com` URLs (in
+`index.html` og:url, `public/sitemap.xml`, `public/robots.txt`, `README.md`)
+for the real `hustleupi.netlify.app` domain. `render.yaml` is kept as-is for
+an optional Render deploy.
+
+Note: a connection timeout can also be a transient DNS/edge issue unrelated
+to app code — if the site is still unreachable after this deploys, check
+the Netlify deploy log/dashboard for the actual build/deploy status rather
+than assuming it's a config problem.
+
 ## Next concrete step
 
 The project is fully ready for deployment on static hosting. No further code changes are pending.
