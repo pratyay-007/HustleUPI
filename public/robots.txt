@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://hustleupi.com/sitemap.xml
+Sitemap: https://hustleupi.onrender.com/sitemap.xml
