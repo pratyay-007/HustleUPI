@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="color-scheme" content="light" />
+    <title>Hustle UPI - Smart Splits, Zero Hassle</title>
+    <meta name="description" content="Hustle UPI helps you easily split large merchant UPI payments into smaller transactions to avoid MDR limits. Secure, fast, and completely free." />
+    <meta property="og:title" content="Hustle UPI - Smart Splits, Zero Hassle" />
+    <meta property="og:description" content="Hustle UPI helps you easily split large merchant UPI payments into smaller transactions to avoid MDR limits. Secure, fast, and completely free." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://hustleupi.com/" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <style>
+      #initial-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background-color: #ffffff;
+        background-image: linear-gradient(#ffffff 0%, #f4f7fb 60%, #ebf1f8 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 250ms ease;
+      }
+      .loader-brand {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: #131b2e;
+        animation: pulse 1.5s infinite ease-in-out;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="initial-loader">
+      <div class="loader-brand">Hustle UPI</div>
+    </div>
+    <div id="app" style="opacity: 0; transition: opacity 250ms ease;">
+      <header class="site-header">
+        <a class="brand" href="#scan">Hustle UPI</a>
+        <span class="header-tagline">Smart Splits. Zero Hassle.</span>
+        <div class="header-actions">
+          <span class="status-chip">100% Secure</span>
+          <a class="about-link" href="#about" aria-label="About">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+              <path d="M12 10.5V17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              <circle cx="12" cy="7.5" r="1" fill="currentColor" />
+            </svg>
+          </a>
+        </div>
+      </header>
+
+      <main>
+        <section class="screen" id="scan-screen" data-view="scan">
+          <section class="scan-card" aria-label="Scan merchant QR">
+            <div id="qr-reader" class="qr-reader"></div>
+            <div class="scan-backdrop" aria-hidden="true"></div>
+
+            <div class="scan-top">
+              <p class="scan-instruction">Align merchant UPI QR code within frame</p>
+              <p class="scan-hint" id="scan-status">NPCI QR / BharatQR / Dynamic Intent</p>
+            </div>
+
+            <div class="scan-stage">
+              <div class="reticle" aria-hidden="true">
+                <span class="reticle-corner tl"></span>
+                <span class="reticle-corner tr"></span>
+                <span class="reticle-corner bl"></span>
+                <span class="reticle-corner br"></span>
+                <span class="reticle-crosshair-x"></span>
+                <span class="reticle-crosshair-y"></span>
+                <span class="scanline"></span>
+              </div>
+            </div>
+
+            <div class="scan-bottom">
+              <button class="camera-retry hidden" id="camera-retry" type="button">
+                Enable camera
+              </button>
+              <div class="scan-fallbacks">
+                <button class="fallback-button" id="upload-qr" type="button">
+                  Upload QR instead
+                </button>
+                <span class="fallback-dot" aria-hidden="true">•</span>
+                <button class="fallback-link" id="enter-vpa" type="button">
+                  Enter VPA manually
+                </button>
+              </div>
+              <p class="scan-error" id="scan-error" hidden></p>
+            </div>
+          </section>
+
+          <div class="vpa-panel hidden" id="vpa-panel">
+            <form class="card vpa-card" id="vpa-form">
+              <p class="mono-label">Manual entry</p>
+              <h2>Enter merchant UPI ID</h2>
+              <label class="field-label" for="vpa-input">UPI ID (VPA)</label>
+              <input
+                id="vpa-input"
+                class="text-input"
+                type="text"
+                inputmode="email"
+                autocomplete="off"
+                placeholder="merchant@upi"
+                required
+              />
+              <label class="field-label" for="vpa-name">Payee name (optional)</label>
+              <input
+                id="vpa-name"
+                class="text-input"
+                type="text"
+                autocomplete="off"
+                placeholder="Shop name"
+              />
+              <p class="field-error" id="vpa-error" hidden></p>
+              <button class="btn-primary" type="submit">
+                <span>Continue</span>
+              </button>
+              <button class="btn-text" id="vpa-cancel" type="button">Cancel</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="screen hidden" id="amount-screen" data-view="amount">
+          <article class="card">
+            <p class="mono-label">Merchant</p>
+            <h1 class="merchant-name" id="amount-merchant-name">Merchant</h1>
+            <p class="merchant-vpa" id="amount-merchant-vpa"></p>
+
+            <label class="field-label" for="bill-amount">Bill amount (₹)</label>
+            <input
+              id="bill-amount"
+              class="amount-input"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="0"
+            />
+            <p class="field-hint">Each tranche stays under ₹2,000.</p>
+            <p class="field-error" id="amount-error" hidden></p>
+
+            <div class="split-preview" id="split-preview" hidden>
+              <p class="mono-label" id="split-preview-label"></p>
+              <ul class="tranche-chips" id="tranche-chips"></ul>
+            </div>
+
+            <button class="btn-primary" id="btn-split" type="button" disabled>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M13 3L5 14h7l-1 7 8-11h-7l1-7z"
+                  fill="currentColor"
+                />
+              </svg>
+              <span>Split</span>
+            </button>
+            <button class="btn-text" id="amount-back" type="button">Scan a different QR</button>
+          </article>
+        </section>
+
+        <section class="screen hidden" id="split-screen" data-view="split">
+          <div class="progress-segments" id="progress-segments" aria-hidden="true"></div>
+          <article class="card split-card">
+            <p class="mono-label" id="tranche-label">Tranche 1 of 1</p>
+            <h1 class="merchant-name" id="split-merchant-name">Merchant</h1>
+            <p class="merchant-vpa" id="split-merchant-vpa"></p>
+
+            <p class="field-label">This tranche</p>
+            <h2 id="tranche-amount-display" class="amount-display">₹0</h2>
+            <p class="field-error" id="tranche-error" hidden></p>
+
+            <div class="qr-fallback">
+              <canvas id="pay-qr" width="220" height="220" aria-label="Payment QR code"></canvas>
+              <p class="field-hint">
+                Scan this QR from another phone if Pay does not open a UPI app, or tap Pay on this
+                device.
+              </p>
+            </div>
+
+            <a class="btn-primary" id="pay-link" href="#">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M13 3L5 14h7l-1 7 8-11h-7l1-7z"
+                  fill="currentColor"
+                />
+              </svg>
+              <span id="pay-label">Pay</span>
+            </a>
+            <button class="btn-text" id="mark-paid" type="button">Mark as paid</button>
+          </article>
+        </section>
+
+        <section class="screen hidden" id="complete-screen" data-view="complete">
+          <article class="card complete-card">
+            <p class="mono-label">Done</p>
+            <h1>Split complete</h1>
+            <p class="complete-copy">
+              You marked <strong id="complete-count">0</strong> tranche(s) as paid,
+              totalling <strong id="complete-total">₹0</strong> to
+              <span id="complete-merchant"></span>.
+            </p>
+            <p class="field-hint">
+              This app does not verify bank settlement. Confirm success in your UPI app.
+            </p>
+            <button class="btn-primary" id="start-new" type="button">
+              <span>Start new split</span>
+            </button>
+          </article>
+        </section>
+
+        <section class="screen hidden" id="about-screen" data-view="about">
+          <article class="card about-card">
+            <p class="mono-label">About the Developer</p>
+            <p>
+              Hi, I'm Pratyay Hazra — a Computer Science & Technology student
+              from India and a passionate developer who enjoys building products
+              that solve everyday problems with simple technology. I love
+              creating practical tools in fintech, AI, and web development that
+              make people's lives a little easier.
+            </p>
+            
+            <p class="mono-label">Why I Built HustleUPI</p>
+            <p>
+              The idea for HustleUPI came from observing how people started
+              paying the same merchant QR code multiple times to split a bill
+              into smaller transactions after the announcement of the new 0.4%
+              Merchant Discount Rate (MDR) on certain merchant UPI payments above
+              ₹2,000. Instead of manually calculating amounts, scanning the same
+              QR repeatedly, and keeping track of which payments were completed,
+              I wanted a simpler experience. HustleUPI solves that hassle. Scan a
+              merchant QR once, enter the bill amount, and HustleUPI intelligently
+              splits the payment into smaller transactions or lets you create
+              your own custom splits. It works alongside your favorite UPI apps
+              like Google Pay, PhonePe, Paytm, and BHIM, making the entire
+              payment process faster, cleaner, and easier to manage. This project
+              is my attempt to turn a real-world payment inconvenience into a
+              simple and user-friendly solution.
+            </p>
+
+            <p class="mono-label">Support My Work ☕</p>
+            <div style="margin-bottom: 16px;">
+              <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="pratyay" data-color="#FFDD00" data-emoji=""  data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>
+            </div>
+
+            <p class="mono-label">Connect With Me</p>
+            <p>
+              <a href="https://github.com/pratyay-007" rel="noopener noreferrer" target="_blank">GitHub</a><br>
+              <a href="https://linkedin.com/in/pratyay-hazra" rel="noopener noreferrer" target="_blank">LinkedIn</a>
+            </p>
+            
+            <hr style="border: none; border-top: 1px solid var(--color-hairline); margin: 24px 0;" />
+            <div style="display: flex; gap: 12px; font-size: 13px; justify-content: center; flex-wrap: wrap;">
+              <a href="#privacy" style="color: var(--color-ink-secondary);">Privacy Policy</a>
+              <a href="#terms" style="color: var(--color-ink-secondary);">Terms of Service</a>
+              <a href="#cookie" style="color: var(--color-ink-secondary);">Cookie Policy</a>
+            </div>
+
+            <a class="btn-text" href="#scan">Back to scanner</a>
+          </article>
+        </section>
+
+        <section class="screen hidden" id="privacy-screen" data-view="privacy">
+          <article class="card about-card">
+            <p class="mono-label">Privacy Policy</p>
+            <h1>Privacy Policy</h1>
+            <p>
+              Hustle UPI is a client-side static web application. It does not have a backend server, database, or user accounts. 
+            </p>
+            <p>
+              <strong>No data collection:</strong> We do not collect, store, or transmit any personal information, payment credentials, or financial data. 
+            </p>
+            <p>
+              All QR code scanning, VPA parsing, and payment split calculations happen entirely on your device inside your web browser. When you initiate a payment, Hustle UPI generates a standard <code>upi://pay</code> link and hands it off to your installed UPI app. The app itself never touches your money or processes payments.
+            </p>
+            <a class="btn-text" href="#about">Back to About</a>
+          </article>
+        </section>
+
+        <section class="screen hidden" id="terms-screen" data-view="terms">
+          <article class="card about-card">
+            <p class="mono-label">Terms of Service</p>
+            <h1>Terms of Service</h1>
+            <p>
+              Hustle UPI is provided as a free, open-source side project "as is" and without any warranties.
+            </p>
+            <p>
+              <strong>No Liability:</strong> By using this tool, you understand that it merely generates standard UPI deep links based on the information you provide or scan. We are not a payment processor, bank, or financial institution. We are not responsible for failed transactions, incorrect amounts entered by the user, or issues with your bank or UPI app.
+            </p>
+            <p>
+              Please verify the payee details and amounts in your UPI app before completing any transaction.
+            </p>
+            <a class="btn-text" href="#about">Back to About</a>
+          </article>
+        </section>
+
+        <section class="screen hidden" id="cookie-screen" data-view="cookie">
+          <article class="card about-card">
+            <p class="mono-label">Cookie Policy</p>
+            <h1>Cookie Policy</h1>
+            <p>
+              Hustle UPI does not use any cookies. There are no tracking scripts, analytics, or third-party advertising cookies embedded in this application.
+            </p>
+            <p>
+              Because this is a completely static, client-side tool, there is no need to track user sessions or store personal preferences across visits.
+            </p>
+            <a class="btn-text" href="#about">Back to About</a>
+          </article>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>Bank-grade UPI intent • No registration required • Zero fee threshold optimization</p>
+        <p class="credit">Hustle UPI © 2026</p>
+      </footer>
+    </div>
+
+    <input id="qr-file" type="file" accept="image/*" hidden />
+    <div id="qr-file-reader" class="qr-file-reader" aria-hidden="true"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
